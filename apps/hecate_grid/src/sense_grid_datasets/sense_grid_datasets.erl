@@ -142,7 +142,9 @@ from_env(S) when is_list(S), S =/= "" ->
 from_env(_Unset) ->
     application:get_env(hecate_grid, sources, []).
 
-%% Spec: "source|dataset|base_url|limit|poll_ms".
+%% Spec: "source|dataset|base_url|limit|poll_ms|order_by".
+to_source([Src, Ds, Base, Limit, Poll, Order]) ->
+    (to_source([Src, Ds, Base, Limit, Poll]))#{order_by => bin(Order)};
 to_source([Src, Ds, Base, Limit, Poll]) ->
     (to_source([Src, Ds, Base, Limit]))#{poll_ms => parse_int(Poll, poll_ms())};
 to_source([Src, Ds, Base, Limit]) ->

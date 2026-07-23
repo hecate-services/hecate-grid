@@ -35,11 +35,16 @@ fetch(Source) ->
 %% timezone or DST trap, and no dependence on the source's filter dialect. The
 %% overlap between consecutive polls is the point, not a cost — a missed poll is
 %% recovered by the next one.
+%% The time field is per DATASET, not universal. Most Elia datasets order by
+%% `datetime', but the imbalance-forecast ones (ods136, ods147) have no such
+%% field and answer HTTP 400 to a query that assumes it. Hardcoding one name
+%% silently reduced two of the seven sources to a stream of archived 400s.
 -spec url(map()) -> binary().
 url(#{base_url := Base, dataset := Dataset} = S) ->
     Limit = integer_to_binary(maps:get(limit, S, 100)),
+    Order = maps:get(order_by, S, <<"datetime">>),
     <<Base/binary, "/", Dataset/binary,
-      "/records?limit=", Limit/binary, "&order_by=datetime%20desc">>.
+      "/records?limit=", Limit/binary, "&order_by=", Order/binary, "%20desc">>.
 
 %% --- Internal ---
 

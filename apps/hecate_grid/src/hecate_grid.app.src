@@ -36,7 +36,7 @@
         %% payload, well under 2 MB/day once the tape gzips it at seal.
         %%
         %% Override wholesale with ${HECATE_GRID_SOURCES}
-        %% ("source|dataset|base_url|limit|poll_ms,...").
+        %% ("source|dataset|base_url|limit|poll_ms|order_by,...").
         {sources, [
             %% Imbalance price, per minute. Fat-tailed, and the quantity a
             %% battery or a BRP actually faces.
@@ -48,9 +48,13 @@
             %% Elia's own imbalance forecast, current and next quarter-hour. This
             %% is the graded benchmark: a model that cannot beat it has not
             %% earned attention.
+            %% These two have NO `datetime' field: they are keyed on when the
+            %% prediction was MADE. Ordering by `datetime' is an HTTP 400.
             #{source => <<"elia">>, dataset => <<"ods136">>, limit => 10, poll_ms => 60000,
+              order_by => <<"predictiontimeutc">>,
               base_url => <<"https://opendata.elia.be/api/explore/v2.1/catalog/datasets">>},
             #{source => <<"elia">>, dataset => <<"ods147">>, limit => 10, poll_ms => 60000,
+              order_by => <<"predictiontimeutc">>,
               base_url => <<"https://opendata.elia.be/api/explore/v2.1/catalog/datasets">>},
             %% Load: measured AND day-ahead/most-recent forecast with confidence
             %% bands, in one row. Quarter-hourly, so polled every five minutes.
