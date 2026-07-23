@@ -4,10 +4,11 @@
 # disabled per the migration pattern). Keeps the org's structural rules honest:
 # no deep nesting (max one meaningful level), no nested try/catch, no if.
 #
-# The macula NIF is NOT needed for these tests (parse_feed is pure and the mesh
-# is never touched), so no Rust toolchain here — unlike services whose eunit
-# exercises mesh identity. If a test ever mints a UCAN, add the source-NIF build
-# (see reference_ci_nif_source_build).
+# The macula NIF is NOT needed here: the sensor publishes but never encodes at
+# rest, and nothing under test touches the mesh or mints a UCAN. So no Rust
+# toolchain, and the run stays fast. The moment a test packs CBOR or mints an
+# identity, add the source-NIF build the way hecate-archive's lint does, and
+# never a fetched artifact (see reference_ci_nif_source_build).
 name: lint-and-test
 
 on:
