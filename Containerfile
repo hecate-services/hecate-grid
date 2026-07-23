@@ -62,8 +62,10 @@ ENV HECATE_COOKIE=hecate_grid
 ENV HECATE_HEALTH_PORT=8481
 
 # Stamped on every record so a harness bug is bounded to a known interval instead
-# of smeared anonymously across the tape. CI sets this to the commit sha.
-ENV HECATE_SENSOR_REF=unset
+# of smeared anonymously across the tape. CI passes the commit sha as a build-arg;
+# a hand-built image says "unset" and the sensor warns loudly at boot.
+ARG SENSOR_REF=unset
+ENV HECATE_SENSOR_REF=${SENSOR_REF}
 
 # Realm service-principal cert mounts here; station socket under /run/macula.
 VOLUME ["/etc/hecate/secrets", "/var/lib/hecate-grid"]

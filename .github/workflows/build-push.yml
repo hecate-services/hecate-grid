@@ -44,6 +44,11 @@ jobs:
           context: .
           file: Containerfile
           push: true
+          # The build identity stamped on every observation. Without it the tape
+          # cannot be attributed to a build, so a harness bug cannot be bounded
+          # to an interval.
+          build-args: |
+            SENSOR_REF=${{ github.sha }}
           tags: |
             ghcr.io/hecate-services/hecate-grid:latest
             ghcr.io/hecate-services/hecate-grid:${{ steps.tag.outputs.tag }}
