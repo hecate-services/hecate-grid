@@ -1,0 +1,76 @@
+{application, hecate_grid, [
+    {description, "Grid sensor: polls TSO open-data endpoints and publishes verbatim observations"},
+    {vsn, "0.1.0"},
+    {registered, [hecate_grid_sup]},
+    {mod, {hecate_grid_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        crypto,
+        %% HTTPS to the TSO endpoints, pure OTP against the system CA store.
+        inets,
+        ssl,
+        %% Producer-only hecate_om service: mesh wiring, no reckon-db store.
+        hecate_om
+    ]},
+    {env, [
+        %% Default source set: Elia (Belgium), near-real-time only.
+        %%
+        %% Chosen so that MEASUREMENT and the operator's OWN FORECAST of the same
+        %% quantity are both captured. The forecast is what makes a later claim
+        %% falsifiable: a model that cannot beat the TSO's published forecast has
+        %% not earned attention, and that is knowable on day one rather than
+        %% after a month of evolution.
+        %%
+        %% `limit' is the number of most-recent rows asked for each poll, sized to
+        %% cover SEVERAL intervals so a missed poll is recovered by the next one
+        %% instead of becoming a hole. The overlap is deliberate. Elia caps limit
+        %% at 100 (101 is a 400).
+        %%
+        %% `poll_ms' is per source, because a quarter-hourly dataset polled every
+        %% minute is fifteen identical answers and fourteen wasted requests on a
+        %% free public service.
+        %%
+        %% Measured, not guessed: an ods161 row is ~324 bytes of JSON and a
+        %% request round-trips in ~340 ms. The set below is ~13 MB/day of raw
+        %% payload, well under 2 MB/day once the tape gzips it at seal.
+        %%
+        %% Override wholesale with ${HECATE_GRID_SOURCES}
+        %% ("source|dataset|base_url|limit|poll_ms,...").
+        {sources, [
+            %% Imbalance price, per minute. Fat-tailed, and the quantity a
+            %% battery or a BRP actually faces.
+            #{source => <<"elia">>, dataset => <<"ods161">>, limit => 10, poll_ms => 60000,
+              base_url => <<"https://opendata.elia.be/api/explore/v2.1/catalog/datasets">>},
+            %% Current system imbalance, per minute, with its components.
+            #{source => <<"elia">>, dataset => <<"ods169">>, limit => 10, poll_ms => 60000,
+              base_url => <<"https://opendata.elia.be/api/explore/v2.1/catalog/datasets">>},
+            %% Elia's own imbalance forecast, current and next quarter-hour. This
+            %% is the graded benchmark: a model that cannot beat it has not
+            %% earned attention.
+            #{source => <<"elia">>, dataset => <<"ods136">>, limit => 10, poll_ms => 60000,
+              base_url => <<"https://opendata.elia.be/api/explore/v2.1/catalog/datasets">>},
+            #{source => <<"elia">>, dataset => <<"ods147">>, limit => 10, poll_ms => 60000,
+              base_url => <<"https://opendata.elia.be/api/explore/v2.1/catalog/datasets">>},
+            %% Load: measured AND day-ahead/most-recent forecast with confidence
+            %% bands, in one row. Quarter-hourly, so polled every five minutes.
+            #{source => <<"elia">>, dataset => <<"ods002">>, limit => 20, poll_ms => 300000,
+              base_url => <<"https://opendata.elia.be/api/explore/v2.1/catalog/datasets">>},
+            %% Wind and solar: realtime estimate AND forecasts. Many rows per
+            %% timestamp (region x onshore/offshore x connection), hence the
+            %% larger limit for the same time coverage.
+            #{source => <<"elia">>, dataset => <<"ods086">>, limit => 100, poll_ms => 300000,
+              base_url => <<"https://opendata.elia.be/api/explore/v2.1/catalog/datasets">>},
+            #{source => <<"elia">>, dataset => <<"ods087">>, limit => 100, poll_ms => 300000,
+              base_url => <<"https://opendata.elia.be/api/explore/v2.1/catalog/datasets">>}
+        ]},
+        %% Fallback interval for a source that does not carry its own, in ms.
+        %% Override ${HECATE_GRID_POLL_MS}.
+        {poll_ms, 60000},
+        %% The topic the archive listens on. Override ${HECATE_GRID_TOPIC}.
+        {topic, <<"archive/observations">>}
+    ]},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [{"Codeberg", "https://codeberg.org/hecate-services/hecate-grid"}]}
+]}.

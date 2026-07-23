@@ -1,0 +1,20 @@
+%% Substituted by relx at build; ${VAR} resolves from the environment at boot.
+%%
+%% The sensor's own tuning (sources, poll interval, topic) is read straight from
+%% the environment in code (HECATE_GRID_SOURCES, HECATE_GRID_POLL_MS,
+%% HECATE_GRID_TOPIC), falling back to the app.src defaults — so it does not
+%% appear here and an unset var is never a malformed term. This file carries only
+%% the mesh wiring, which every ${VAR} must resolve.
+[
+    {hecate_om, [
+        {service_cert_path, "/etc/hecate/secrets/service-cert.pem"},
+        {station_socket,    "/run/macula/station.sock"},
+        {health_port,       ${HECATE_HEALTH_PORT}},
+        {capability_topic,  <<"_mesh.cap.">>},
+        %% Must be the realm hecate-archive listens in, or the observations are
+        %% published into a room with nobody in it.
+        {realm,             <<"${HECATE_REALM}">>}
+    ]},
+
+    {kernel, [{logger_level, info}]}
+].
