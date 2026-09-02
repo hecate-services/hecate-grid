@@ -16,7 +16,8 @@
 FROM docker.io/erlang:27-alpine AS builder
 WORKDIR /build
 
-RUN apk add --no-cache git curl bash build-base cmake perl linux-headers
+RUN apk add --no-cache git curl bash build-base cmake perl linux-headers \
+        openssl-dev zstd-dev snappy-dev lz4-dev
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
         | sh -s -- -y --default-toolchain stable --profile minimal
 ENV PATH="/root/.cargo/bin:${PATH}"
@@ -44,7 +45,8 @@ RUN rebar3 as prod release
 # Stage 2 — runtime: bare Alpine + the assembled release
 #----------------------------------------------------------------------
 FROM docker.io/alpine:3.22
-RUN apk add --no-cache ncurses-libs libstdc++ libgcc openssl ca-certificates curl
+RUN apk add --no-cache ncurses-libs libstdc++ libgcc openssl ca-certificates curl \
+        zstd-libs snappy lz4-libs
 WORKDIR /app
 COPY --from=builder /build/_build/prod/rel/hecate_grid ./
 RUN mkdir -p /var/lib/hecate-grid
