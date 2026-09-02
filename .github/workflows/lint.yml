@@ -1,7 +1,6 @@
 # Elvis lint + eunit for hecate-grid.
 #
-# Codeberg is canonical; this runs on the GitHub push-mirror (Forgejo Actions
-# disabled per the migration pattern). Keeps the org's structural rules honest:
+# Runs on GitHub Actions. Keeps the org's structural rules honest:
 # no deep nesting (max one meaningful level), no nested try/catch, no if.
 #
 # The macula NIF is NOT needed here: the sensor publishes but never encodes at

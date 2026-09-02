@@ -17,7 +17,7 @@
 
 -define(FETCH_TIMEOUT, 20000).
 -define(CONNECT_TIMEOUT, 10000).
--define(UA, "hecate-grid/0.1 (+https://codeberg.org/hecate-services/hecate-grid)").
+-define(UA, "hecate-grid/0.1 (+https://github.com/hecate-services/hecate-grid)").
 
 %% @doc Fetch a source's most-recent rows. `{ok, Map}' for any completed HTTP
 %% exchange (including 4xx/5xx); `{error, Reason}' only when nothing came back at

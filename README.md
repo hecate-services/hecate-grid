@@ -2,10 +2,10 @@
 
 **A TSO open-data sensor.** It polls near-real-time electricity grid datasets and
 publishes each response, byte for byte, onto the mesh for
-[hecate-archive](https://codeberg.org/hecate-services/hecate-archive) to keep.
+[hecate-archive](https://github.com/hecate-services/hecate-archive) to keep.
 
-Same shape as [hecate-warden](https://codeberg.org/hecate-services/hecate-warden) and
-[hecate-news](https://codeberg.org/hecate-services/hecate-news): observe the world,
+Same shape as [hecate-warden](https://github.com/hecate-services/hecate-warden) and
+[hecate-news](https://github.com/hecate-services/hecate-news): observe the world,
 publish facts, hold no store.
 
 ## What it watches
